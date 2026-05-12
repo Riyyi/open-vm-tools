@@ -30,6 +30,10 @@
 #include "copyPasteDnDX11.h"
 #endif
 
+#if defined(HAVE_WAYLAND)
+#include "copyPasteDnDWayland.h"
+#endif
+
 #if defined(WIN32)
 #include "copyPasteDnDWin32.h"
 #ifdef DND_VM
@@ -52,6 +56,11 @@
 #include "copyPasteDnDWrapper.h"
 #include "guestDnDCPMgr.hh"
 #include "vmware.h"
+
+#if defined(HAVE_GTKMM)
+#include <gdkmm.h>
+#include <gtkmm.h>
+#endif
 
 
 /**
@@ -140,6 +149,22 @@ CopyPasteDnDWrapper::PointerInit()
  * @param[in] ctx tools app context.
  */
 
+static bool
+IsWaylandSession(void)
+{
+#if defined(HAVE_GTKMM)
+   Gdk::Display::get_default()->sync();
+   if (Gdk::Display::get_default()->get_type() == GDK_DISPLAY_TYPE_WAYLAND) {
+      return true;
+   }
+#endif
+   const char *xdgSessionType = getenv("XDG_SESSION_TYPE");
+   if (xdgSessionType && strcmp(xdgSessionType, "wayland") == 0) {
+      return true;
+   }
+   return false;
+}
+
 void
 CopyPasteDnDWrapper::Init(ToolsAppCtx *ctx)
 {
@@ -149,7 +174,15 @@ CopyPasteDnDWrapper::Init(ToolsAppCtx *ctx)
 
    if (!m_pimpl) {
 #if defined(HAVE_GTKMM)
+#if defined(HAVE_WAYLAND)
+      if (IsWaylandSession()) {
+         m_pimpl = new CopyPasteDnDWayland();
+      } else {
+         m_pimpl = new CopyPasteDnDX11();
+      }
+#else
       m_pimpl = new CopyPasteDnDX11();
+#endif
 #endif
 #if defined(WIN32)
 #ifdef DND_VM

@@ -44,6 +44,10 @@ extern "C" {
 #include <gtkmm.h>
 #include <gdkmm.h>
 
+#if GTKMM_VERSION_MAJOR >= 4
+#include <gdk/gdk.h>
+#endif
+
 class CopyPasteUIWayland
 {
 public:
@@ -59,9 +63,12 @@ private:
    void GetRemoteClipboardCB(const CPClipboard *clip);
    void GetLocalClipboard(void);
    void SendClipNotChanged(void);
+   void OnReadTextAsync(const Glib::RefPtr<Gdk::Clipboard> &clipboard,
+                        const Glib::ustring &text);
 
    GuestCopyPasteMgr *mCP;
    bool mClipboardEmpty;
+   std::string mPendingText;
 };
 
 #endif // __COPYPASTE_UI_WAYLAND_H__

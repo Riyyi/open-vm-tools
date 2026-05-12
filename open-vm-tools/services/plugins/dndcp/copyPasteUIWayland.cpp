@@ -20,6 +20,10 @@
 #include "guestCopyPasteMgr.hh"
 #include "guestDnDCPMgr.h"
 
+extern "C" {
+#include "dndClipboard.h"
+}
+
 CopyPasteUIWayland::CopyPasteUIWayland()
    : mCP(nullptr),
      mClipboardEmpty(true)
@@ -40,9 +44,9 @@ CopyPasteUIWayland::Init()
       return false;
    }
 
-   mCP->SetSrcCallback(
+mCP->srcRecvClipChanged.connect(
       sigc::mem_fun(this, &CopyPasteUIWayland::GetRemoteClipboardCB));
-   mCP->SetDestCallback(
+   mCP->destRequestClipChanged.connect(
       sigc::mem_fun(this, &CopyPasteUIWayland::GetLocalClipboard));
 
    return true;
@@ -83,18 +87,89 @@ CopyPasteUIWayland::GetRemoteClipboardCB(const CPClipboard *clip)
       return;
    }
 
-   if (clip->format == CPFORMAT_TEXT) {
-      mClipboardEmpty = false;
+   if (!CPClipboard_ItemExists(clip, CPFORMAT_TEXT)) {
+      return;
    }
+
+   void *buf = nullptr;
+   size_t sz = 0;
+   if (!CPClipboard_GetItem(clip, CPFORMAT_TEXT, &buf, &sz)) {
+      return;
+   }
+
+   std::string text(static_cast<const char *>(buf), sz);
+   mClipboardEmpty = false;
+
+   Glib::RefPtr<Gdk::Display> display = Gdk::Display::get_default();
+   if (!display) {
+      return;
+   }
+
+   Glib::RefPtr<Gdk::Clipboard> clipboard = display->get_clipboard();
+   if (!clipboard) {
+      return;
+   }
+
+#if GTKMM_VERSION_MAJOR >= 4
+   clipboard->set_text(text);
+#else
+   clipboard->set_text(text);
+#endif
 }
 
 
 void
 CopyPasteUIWayland::GetLocalClipboard(void)
 {
-   if (mCP) {
-      SendClipNotChanged();
+   if (!mCP) {
+      return;
    }
+
+   Glib::RefPtr<Gdk::Display> display = Gdk::Display::get_default();
+   if (!display) {
+      SendClipNotChanged();
+      return;
+   }
+
+   Glib::RefPtr<Gdk::Clipboard> clipboard = display->get_clipboard();
+   if (!clipboard) {
+      SendClipNotChanged();
+      return;
+   }
+
+   clipboard->read_text_async(sigc::bind(
+      sigc::mem_fun(this, &CopyPasteUIWayland::OnReadTextAsync),
+      clipboard));
+}
+
+
+void
+CopyPasteUIWayland::OnReadTextAsync(const Glib::RefPtr<Gdk::Clipboard> &clipboard,
+                                     const Glib::ustring &text)
+{
+   if (!mCP) {
+      return;
+   }
+
+   if (text.empty()) {
+      SendClipNotChanged();
+      return;
+   }
+
+   CPClipboard clip;
+   CPClipboard_Init(&clip);
+
+   const char *textStr = text.c_str();
+   size_t textLen = text.length();
+
+   if (!CPClipboard_SetItem(&clip, CPFORMAT_TEXT, textStr, textLen)) {
+      CPClipboard_Destroy(&clip);
+      SendClipNotChanged();
+      return;
+   }
+
+   mCP->DestUISendClip(&clip);
+   CPClipboard_Destroy(&clip);
 }
 
 
