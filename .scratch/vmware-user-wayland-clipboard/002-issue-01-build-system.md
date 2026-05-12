@@ -1,8 +1,19 @@
 # Add `--with-wayland` configure flag and build support
 
-**Status:** ready-for-agent
+**Status:** completed
 
 **Parent:** .scratch/vmware-user-wayland-clipboard/001-prd-wayland-clipboard-support.md
+
+## Notes
+
+- Added --with-wayland configure flag (yes/auto/no, default auto)
+- Added gtkmm-4.0 detection using AC_VMW_CHECK_LIBXX
+- Added WAYLAND_CPPFLAGS and GTKMM4_CPPFLAGS/LIBS variables
+- Added AM_CONDITIONAL(HAVE_WAYLAND, ...) in configure.ac
+- Added stub files: copyPasteDnDWayland.h/cpp, copyPasteUIWayland.h/cpp
+- Updated Makefile.am to conditionally compile Wayland sources when HAVE_WAYLAND is set
+- Verified: ./configure --help shows --without-wayland flag
+- Verified: configure with --with-wayland detects gtkmm-4.0 and sets HAVE_WAYLAND
 
 ## What to build
 

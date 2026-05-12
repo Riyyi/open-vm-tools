@@ -101,6 +101,14 @@ libdndcp_la_SOURCES  += fakeMouseWayland/fakeMouseWayland.cpp
 libdndcp_la_CPPFLAGS += -DUSE_UINPUT
 endif
 
+if HAVE_WAYLAND
+libdndcp_la_CPPFLAGS += @WAYLAND_CPPFLAGS@
+libdndcp_la_CXXFLAGS += @GTKMM4_CPPFLAGS@
+libdndcp_la_LIBADD += @GTKMM4_LIBS@
+libdndcp_la_SOURCES += dndGuestBase/copyPasteDnDWayland.cpp
+libdndcp_la_SOURCES += copyPasteUIWayland.cpp
+endif
+
 if HAVE_MKDTEMP
 libdndcp_la_CPPFLAGS += -DDND_IS_XDG
 libdndcp_la_SOURCES  += dnd/dndXdg.c

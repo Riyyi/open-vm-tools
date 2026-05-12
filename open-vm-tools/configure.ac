@@ -1098,6 +1098,34 @@ else
    fi
 fi # End of checks for X libraries
 
+#
+# Check for Wayland clipboard support (gtkmm-4.0)
+#
+AC_ARG_WITH(
+   [wayland],
+   [AS_HELP_STRING(
+      [--without-wayland],
+      [compiles without Wayland clipboard support (requires gtkmm-4.0)])],
+   [with_wayland="$withval"],
+   [with_wayland="auto"])
+
+if test "$with_wayland" != "no"; then
+   AC_VMW_CHECK_LIBXX([gtkmm-4.0],
+                      [GTKMM4],
+                      [gtkmm-4.0],
+                      [],
+                      [4.0.0],
+                      [gtkmm.h],
+                      [],
+                      [WAYLAND_CPPFLAGS="$WAYLAND_CPPFLAGS -DHAVE_WAYLAND"
+                       AC_DEFINE([HAVE_WAYLAND], 1, [Define to 1 if Wayland clipboard support is enabled.])],
+                      [if test "$with_wayland" = "yes"; then
+                          AC_MSG_ERROR([gtkmm-4.0 library not found. Please configure without Wayland support (using --without-wayland) or install the libgtkmm-4.0 devel package.])
+                       else
+                          AC_MSG_NOTICE([gtkmm-4.0 not found, Wayland clipboard support will be disabled.])
+                       fi])
+fi
+
 AC_CHECK_LIB(
    [crypt],
    [crypt],
@@ -1658,6 +1686,7 @@ AM_CONDITIONAL(HAVE_FUSE, test "$have_fuse" = "yes" || test "$have_fuse3" = "yes
 AM_CONDITIONAL(HAVE_FUSE3, test "$have_fuse3" = "yes")
 AM_CONDITIONAL(HAVE_GNU_LD, test "$with_gnu_ld" = "yes")
 AM_CONDITIONAL(HAVE_GTKMM, test "$have_x" = "yes" -a \( "$with_gtkmm" = "yes" -o "$with_gtkmm3" = "yes" \) )
+AM_CONDITIONAL(HAVE_WAYLAND, test "$with_wayland" != "no")
 AM_CONDITIONAL(HAVE_PAM, test "$with_pam" = "yes")
 AM_CONDITIONAL(USE_SLASH_PROC, test "$os" = "linux")
 AM_CONDITIONAL(ENABLE_CONTAINERINFO, test "$enable_containerinfo" = "yes")
