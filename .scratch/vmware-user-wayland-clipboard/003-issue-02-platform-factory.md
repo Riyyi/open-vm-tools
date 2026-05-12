@@ -1,8 +1,6 @@
 # Conditionally instantiate Wayland platform impl
 
-**Status:** ready-for-agent
-
-**Parent:** .scratch/vmware-user-wayland-clipboard/001-prd-wayland-clipboard-support.md
+**Status:** completed
 
 ## What to build
 
@@ -12,11 +10,13 @@ This does not change the `CopyPasteDnDImpl` interface — `copyPasteDnDWrapper.h
 
 ## Acceptance criteria
 
-- [ ] `CopyPasteDnDWrapper::Init` detects a Wayland session and instantiates `CopyPasteDnDWayland`
-- [ ] `CopyPasteDnDWrapper::Init` detects an X11 session and instantiates `CopyPasteDnDX11`
-- [ ] The conditional compilation is guarded by the `--with-wayland` configure result
-- [ ] When `--without-wayland`, `CopyPasteDnDWayland` is not referenced and the X11 path builds unchanged
+- [x] `CopyPasteDnDWrapper::Init` detects a Wayland session and instantiates `CopyPasteDnDWayland`
+- [x] `CopyPasteDnDWrapper::Init` detects an X11 session and instantiates `CopyPasteDnDX11`
+- [x] The conditional compilation is guarded by the `--with-wayland` configure result
+- [x] When `--without-wayland`, `CopyPasteDnDWayland` is not referenced and the X11 path builds unchanged
 
-## Blocked by
+## Notes
 
-- .scratch/vmware-user-wayland-clipboard/002-issue-01-build-system.md
+- Implemented IsWaylandSession() function that checks both GDK display type and XDG_SESSION_TYPE env var
+- Conditional compilation guarded by HAVE_WAYLAND and HAVE_GTKMM macros
+- Platform factory logic committed in latest commit
