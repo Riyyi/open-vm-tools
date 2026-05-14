@@ -279,10 +279,6 @@ if test "$with_gtk2" = "no" ; then
    with_gtkmm="no"
 fi
 
-if test "$with_gtk3" = "no" ; then
-   with_gtkmm3="no"
-fi
-
 if test "$with_gtk3" = "yes"; then
    AC_ARG_WITH(
       gtkmm3,
@@ -1124,6 +1120,10 @@ if test "$with_wayland" != "no"; then
                        else
                           AC_MSG_NOTICE([gtkmm-4.0 not found, Wayland clipboard support will be disabled.])
                        fi])
+fi
+
+if test "$with_wayland" != "no" -a "$with_gtk3" = "no"; then
+   with_gtkmm3="no"
 fi
 
 AC_SUBST([WAYLAND_CPPFLAGS])
