@@ -60,7 +60,6 @@
 #if defined(HAVE_GTKMM)
 #include <gdkmm.h>
 #include <gtkmm.h>
-#include <gdk/gdk.h>
 #endif
 
 
@@ -153,15 +152,6 @@ CopyPasteDnDWrapper::PointerInit()
 static bool
 IsWaylandSession(void)
 {
-#if defined(HAVE_GTKMM)
-   GdkDisplay *display = gdk_display_get_default();
-   if (display) {
-      gdk_display_sync(display);
-      if (GDK_IS_WAYLAND_DISPLAY(display)) {
-         return true;
-      }
-   }
-#endif
    const char *xdgSessionType = getenv("XDG_SESSION_TYPE");
    if (xdgSessionType && strcmp(xdgSessionType, "wayland") == 0) {
       return true;
