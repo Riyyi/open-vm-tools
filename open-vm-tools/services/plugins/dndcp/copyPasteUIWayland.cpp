@@ -17,8 +17,8 @@
  *********************************************************/
 
 #include "copyPasteUIWayland.h"
-#include "guestCopyPasteMgr.hh"
-#include "guestDnDCPMgr.h"
+#include "guestCopyPaste.hh"
+#include "guestDnDCPMgr.hh"
 
 extern "C" {
 #include "dndClipboard.h"

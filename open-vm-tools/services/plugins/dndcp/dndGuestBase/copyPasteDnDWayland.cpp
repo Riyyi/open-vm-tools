@@ -18,7 +18,7 @@
 
 #include "copyPasteDnDWayland.h"
 #include "copyPasteUIWayland.h"
-#include "guestDnDCPMgr.h"
+#include "guestDnDCPMgr.hh"
 #include "dnd.h"
 
 extern "C" {
