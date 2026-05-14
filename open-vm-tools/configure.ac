@@ -1049,7 +1049,7 @@ else
    #
 
 
-   if test "$with_gtkmm" != "no" -o "$with_gtkmm3" != "no"; then
+   if test "$with_gtkmm" != "no" -o "$with_gtkmm3" != "no" -o "$with_wayland" != "no"; then
       if test "$with_gtkmm3" != "no"; then
          AC_VMW_CHECK_LIBXX([gtkmm-3.0],
                             [GTKMM],
