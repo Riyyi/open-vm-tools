@@ -1126,6 +1126,8 @@ if test "$with_wayland" != "no"; then
                        fi])
 fi
 
+AC_SUBST([WAYLAND_CPPFLAGS])
+
 AC_CHECK_LIB(
    [crypt],
    [crypt],

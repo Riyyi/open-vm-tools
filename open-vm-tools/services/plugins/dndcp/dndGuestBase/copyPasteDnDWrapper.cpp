@@ -60,6 +60,7 @@
 #if defined(HAVE_GTKMM)
 #include <gdkmm.h>
 #include <gtkmm.h>
+#include <gdk/gdk.h>
 #endif
 
 
@@ -153,9 +154,12 @@ static bool
 IsWaylandSession(void)
 {
 #if defined(HAVE_GTKMM)
-   Gdk::Display::get_default()->sync();
-   if (Gdk::Display::get_default()->get_type() == GDK_DISPLAY_TYPE_WAYLAND) {
-      return true;
+   GdkDisplay *display = gdk_display_get_default();
+   if (display) {
+      gdk_display_sync(display);
+      if (GDK_IS_WAYLAND_DISPLAY(display)) {
+         return true;
+      }
    }
 #endif
    const char *xdgSessionType = getenv("XDG_SESSION_TYPE");
